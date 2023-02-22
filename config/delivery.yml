@@ -1,67 +1,37 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: where-for-dinner
+  name: where-for-dinner-ui
   annotations:
     ootb.apps.tanzu.vmware.com/servicebinding-workload: "true"
     ootb.apps.tanzu.vmware.com/apidescriptor-ref: "true"
   labels:
-    app.kubernetes.io/part-of: where-for-dinner-api-gateway
+    app.kubernetes.io/part-of: where-for-dinner-ui
     apps.tanzu.vmware.com/workload-type: web
+    networking.knative.dev/visibility: cluster-local
     app.kubernetes.io/component: run
-    carto.run/workload-name: where-for-dinner
+    carto.run/workload-name: where-for-dinner-ui
 spec:
   template:
     metadata:
       annotations:
-        boot.spring.io/version: 2.7.5
         conventions.carto.run/applied-conventions: |-
           spring-boot-convention/auto-configure-actuators-check
-          spring-boot-convention/spring-boot
-          spring-boot-convention/spring-boot-web
-          spring-boot-convention/spring-boot-actuator
-          spring-boot-convention/spring-boot-actuator-probes
           spring-boot-convention/app-live-view-appflavour-check
-          spring-boot-convention/app-live-view-connector-boot
-          spring-boot-convention/app-live-view-appflavours-boot
-          spring-boot-convention/app-live-view-connector-scg
-          spring-boot-convention/app-live-view-appflavours-scg
           appliveview-sample/app-live-view-appflavour-check
         developer.conventions/target-containers: workload
         kubectl.kubernetes.io/last-applied-configuration: |
-          {"apiVersion":"carto.run/v1alpha1","kind":"Workload","metadata":{"annotations":{},"labels":{"app.kubernetes.io/part-of":"where-for-dinner-api-gateway","apps.tanzu.vmware.com/workload-type":"web"},"name":"where-for-dinner","namespace":"my-apps"},"spec":{"params":[{"name":"gitops_repository","value":"ssh://git@github.com/dapdelivery/where-for-dinner-dest-22-02-2023-09-39-04-614940598.git"},{"name":"gitops_ssh_secret","value":"git-ssh"}],"source":{"git":{"ref":{"branch":"main"},"url":"ssh://git@github.com/dapdelivery/where-for-dinner-app.git"},"subPath":"where-for-dinner-api-gateway"}}}
+          {"apiVersion":"carto.run/v1alpha1","kind":"Workload","metadata":{"annotations":{},"labels":{"app.kubernetes.io/part-of":"where-for-dinner-ui","apps.tanzu.vmware.com/workload-type":"web","networking.knative.dev/visibility":"cluster-local"},"name":"where-for-dinner-ui","namespace":"my-apps"},"spec":{"params":[{"name":"gitops_repository","value":"ssh://git@github.com/dapdelivery/where-for-dinner-dest-22-02-2023-09-39-04-614940598.git"},{"name":"gitops_ssh_secret","value":"git-ssh"}],"source":{"git":{"ref":{"branch":"main"},"url":"ssh://git@github.com/dapdelivery/where-for-dinner-app.git"},"subPath":"where-for-dinner-ui"}}}
       labels:
         app.kubernetes.io/component: run
-        app.kubernetes.io/part-of: where-for-dinner-api-gateway
-        apps.tanzu.vmware.com/auto-configure-actuators: "false"
+        app.kubernetes.io/part-of: where-for-dinner-ui
         apps.tanzu.vmware.com/workload-type: web
-        carto.run/workload-name: where-for-dinner
-        conventions.carto.run/framework: spring-boot
-        tanzu.app.live.view: "true"
-        tanzu.app.live.view.application.actuator.path: actuator
-        tanzu.app.live.view.application.actuator.port: "8080"
-        tanzu.app.live.view.application.flavours: spring-boot_spring-cloud-gateway
-        tanzu.app.live.view.application.name: where-for-dinner
+        carto.run/workload-name: where-for-dinner-ui
+        networking.knative.dev/visibility: cluster-local
     spec:
       containers:
-      - env:
-        - name: JAVA_TOOL_OPTIONS
-          value: -Dmanagement.endpoint.health.probes.add-additional-paths="true" -Dmanagement.health.probes.enabled="true" -Dserver.port="8080"
-        image: dev.registry.tanzu.vmware.com/tanzu-application-platform/ci-pipeline/apps-22-02-2023-09-39-04-614940598/where-for-dinner-my-apps@sha256:8c5048abc02f3772f1cb61d0424c8d93f042ebc295e5adf99b4a8869c163de87
-        livenessProbe:
-          httpGet:
-            path: /livez
-            port: 8080
-            scheme: HTTP
+      - image: dev.registry.tanzu.vmware.com/tanzu-application-platform/ci-pipeline/apps-22-02-2023-09-39-04-614940598/where-for-dinner-ui-my-apps@sha256:91ee2d396d10c2709c276e8ffac9eb453b6ec0f0615a60bf6d9a46de612f590d
         name: workload
-        ports:
-        - containerPort: 8080
-          protocol: TCP
-        readinessProbe:
-          httpGet:
-            path: /readyz
-            port: 8080
-            scheme: HTTP
         resources: {}
         securityContext:
           runAsUser: 1000
